@@ -1,20 +1,19 @@
 import requests
 from bs4 import BeautifulSoup
-import csv
 import pandas as pd
 import numpy as np
 
 
 
 def save_item(product, price_farm):
-    with open('data/saved_products.txt', 'a') as file:
+    with open('../data/saved_products.txt', 'a') as file:
         file.write(str(product) + "@" + str(price_farm) + '\n')
         # adicionar opção de checar se o produto já existe no arquivo e, caso exista, oferecer substituição
         # OBS: criar função de atualizar txt
 
 def open_item_list():
     search_dic = {}
-    with open('data/saved_products.txt', 'r') as file:
+    with open('../data/saved_products.txt', 'r') as file:
         items_list = file.readlines()
 
         for line in items_list:
@@ -133,18 +132,19 @@ def mercado_livre(product):
         df_infos = df.reset_index()
         df_infos = df_infos.rename(columns = {'index':'PRODUTO', 0:'PRECO_DESCONTO', 1:'DESCONTO_%', 2:'FORMA_PAGAMENTO'})
         df_infos['DESCONTO_%'] = df_infos['DESCONTO_%'].replace('discount', 0)
+        df_infos['DESCONTO_%'] = df_infos['DESCONTO_%'].astype(int)
         df_infos['PRECO_ORIGINAL'] = 0
     
         for l in df_infos.index:
             discount = df_infos['DESCONTO_%'][l]
             price_dic = df_infos['PRECO_DESCONTO'][l]
             if discount != 0:
-                num_disc = int(discount)
+                #num_disc = int(discount)
                 price_dic = price_dic.replace('.','')
                 price_final = price_dic.replace(',','.')
                 num_price_disc = float(price_final)
 
-                num_payment = 100 - num_disc
+                num_payment = 100 - discount
                 original_price = (num_price_disc * 100)/num_payment
 
                 df_infos['PRECO_ORIGINAL'][l] = original_price
@@ -276,6 +276,12 @@ def agrosolo(product):
         df_infos['DESCONTO_%'] = df_infos['DESCONTO_%'].replace('discount', 0)
         df_infos['DESCONTO_%'] = df_infos['DESCONTO_%'].astype(float)
         df_infos['PRECO_ORIGINAL'] = df_infos['PRECO_ORIGINAL'].replace('price_before', 0)
+
+        try:
+            df_infos['PRECO_ORIGINAL'] = df_infos['PRECO_ORIGINAL'].str.replace(',', '.')
+            df_infos['PRECO_ORIGINAL'] = df_infos['PRECO_ORIGINAL'].astype(float)
+        except:
+            pass
 
         mask = df_infos['PRECO_DESCONTO'] == 'price_now'
         df_infos = df_infos[~mask]

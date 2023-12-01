@@ -6,7 +6,7 @@ from PIL import Image
 
 # Creating side bar
 
-image = Image.open('assets/farmbits-logo-alt2.png')
+image = Image.open('../assets/farmbits-logo-alt2.png')
 st.sidebar.image(image)
 st.sidebar.markdown('# Pesquisar novo produto:')
 
@@ -95,11 +95,10 @@ if type(df_agros) != str:
         df_agros['PRECO_DESCONTO'] = df_agros['PRECO_DESCONTO'].replace(',','.')
         df_agros['PRECO_DESCONTO'] = df_agros['PRECO_DESCONTO'].astype(float)
 
-    if type(df_agros['PRECO_ORIGINAL']) == str:
-        df_agros['PRECO_ORIGINAL'] = df_agros['PRECO_ORIGINAL'].str.replace(',','.')
-        df_agros['PRECO_ORIGINAL'] = df_agros['PRECO_ORIGINAL'].astype(float)
-    else:
-        pass
+   
+    #df_agros['PRECO_ORIGINAL'] = df_agros['PRECO_ORIGINAL'].str.replace(',','.')
+    #df_agros['PRECO_ORIGINAL'] = df_agros['PRECO_ORIGINAL'].astype(float)
+
     mean_price_agrosolo = df_agros['PRECO_DESCONTO'].mean()
     mean_price_agrosolo = df_agros['PRECO_DESCONTO'].mean()
     df_red_agrosolo_max = df_agros[df_agros['PRECO_DESCONTO'] == df_agros['PRECO_DESCONTO'].max()]
