@@ -6,7 +6,7 @@ from PIL import Image
 
 # Creating side bar
 
-image = Image.open('assets/farmbits-logo-alt2.png')
+image = Image.open('../assets/farmbits-logo-alt2.png')
 st.sidebar.image(image)
 st.sidebar.markdown('# Pesquisar novo produto:')
 
@@ -50,27 +50,29 @@ df_merc = mercado_livre(product)
 if type(df_merc) == str:
     str_result_merc = 'Produto não encontrado no site Mercado Livre!'
 else:
-    #df_merc.to_csv("../data/merc_livre_" + str(product) + ".csv", index = False)
     pass
 
 df_agros = agrosolo(product)
 if type(df_agros) == str:
     str_result = 'Produto não encontrado no site Agrosolo!'
 else:
-    #df_agros.to_csv("../data/agrosolo_" + str(product) + ".csv", index = False)
     pass
     
 df_lojagro = loja_agropecuaria(product)
 if type(df_lojagro) == str:
     str_result_lojagro = 'Produto não encontrado no site Loja Agropecuária!'
 else:
-    #df_lojagro.to_csv("../data/loja_agropecuaria_" + str(product) + ".csv", index = False)
+    pass
+
+df_bom_cultivo = bom_cultivo(product)
+if type(df_bom_cultivo) == str:
+    str_result_bomcult = 'Produto não encontrado no site Bom Cultivo!'
+else:
     pass
 
 max_prices = []
 min_prices = []
 
-#df_mercado_livre = pd.read_csv("../data/merc_livre_" + str(product) + ".csv")
 try:
     df_merc['PRECO_DESCONTO'] = df_merc['PRECO_DESCONTO'].str.replace('.', '')
     df_merc['PRECO_DESCONTO'] = df_merc['PRECO_DESCONTO'].str.replace(',', '.')
@@ -121,8 +123,6 @@ if type(df_lojagro) != str:
 
     mean_price_lojagro = df_lojagro['PRECO_DESCONTO'].mean()
     mean_price_lojagro = round(mean_price_lojagro, 2)
-    mean_price_lojagro = df_lojagro['PRECO_DESCONTO'].mean()
-    mean_price_lojagro = round(mean_price_lojagro, 2)
     df_red_lojagro_max = df_lojagro[df_lojagro['PRECO_DESCONTO'] == df_lojagro['PRECO_DESCONTO'].max()]
     df_red_lojagro_min = df_lojagro[df_lojagro['PRECO_DESCONTO'] == df_lojagro['PRECO_DESCONTO'].min()]
     df_price_lojagro = df_red_lojagro_max.append(df_red_lojagro_min).reset_index(drop = True)
@@ -132,7 +132,27 @@ else:
     mean_price_lojagro = 0
     df_price_lojagro = pd.DataFrame(columns=['PRODUTO','PRECO_DESCONTO','DESCONTO_%','FORMA_PAGAMENTO','PRECO_ORIGINAL','DESCONTO','LOJA'])
 
-mean_price = (mean_price_merc_livre + mean_price_agrosolo + mean_price_lojagro)/3
+if type(df_bom_cultivo) != str:
+    try:
+        df_bom_cultivo['PRECO_DESCONTO'] = df_bom_cultivo['PRECO_DESCONTO'].str.replace(',','.')
+        df_bom_cultivo['PRECO_DESCONTO'] = df_bom_cultivo['PRECO_DESCONTO'].astype(float)
+    except:
+        df_bom_cultivo['PRECO_DESCONTO'] = df_bom_cultivo['PRECO_DESCONTO'].replace(',','.')
+        df_bom_cultivo['PRECO_DESCONTO'] = df_bom_cultivo['PRECO_DESCONTO'].astype(float)
+
+    mean_price_bomcult = df_bom_cultivo['PRECO_DESCONTO'].mean()
+    mean_price_bomcult = round(mean_price_bomcult, 2)
+    df_red_bomcult_max = df_bom_cultivo[df_bom_cultivo['PRECO_DESCONTO'] == df_bom_cultivo['PRECO_DESCONTO'].max()]
+    df_red_bomcult_min = df_bom_cultivo[df_bom_cultivo['PRECO_DESCONTO'] == df_bom_cultivo['PRECO_DESCONTO'].min()]
+    df_price_bomcult = df_red_bomcult_max.append(df_red_bomcult_min).reset_index(drop = True)
+    df_price_bomcult['LOJA'] = 'Bom Cultivo'
+    
+else:
+    mean_price_bomcult = 0
+    df_price_bomcult = pd.DataFrame(columns=['PRODUTO','PRECO_DESCONTO','DESCONTO_%','FORMA_PAGAMENTO','PRECO_ORIGINAL','DESCONTO','LOJA'])
+
+
+mean_price = (mean_price_merc_livre + mean_price_agrosolo + mean_price_lojagro + mean_price_bomcult)/4
 mean_price = round(mean_price, 2)
 difference_to_mean = price_farm - mean_price
 difference_to_mean = round(difference_to_mean, 2)
@@ -141,6 +161,7 @@ df_prices = pd.DataFrame(columns = ['PRODUTO','PRECO_DESCONTO','DESCONTO_%','FOR
 df_prices = df_prices.append(df_price_merc_livre).reset_index(drop = True)
 df_prices = df_prices.append(df_price_agrosolo).reset_index(drop = True)
 df_prices = df_prices.append(df_price_lojagro).reset_index(drop = True)
+df_prices = df_prices.append(df_price_bomcult).reset_index(drop = True)
 
 #max_value = max(max_prices)
 df_max = df_prices[df_prices['PRECO_DESCONTO'] == df_prices['PRECO_DESCONTO'].max()]
@@ -179,14 +200,12 @@ if type(df_merc) == str:
 else:
     st.markdown('#### Mercado Livre')
     st.dataframe(df_merc)
-    #st.download_button(label="Download", data=csv, file_name='mercado_livre' + str(product) + '.csv')
 
 
 if type(df_agros) == str:
     st.markdown('#### Agrosolo')
     st.write(str_result)
 else:
-    #df_agrosolo = pd.read_csv("../data/agrosolo_" + str(product) + ".csv")
     st.markdown('#### Agrosolo')
     st.dataframe(df_agros)
 
@@ -195,10 +214,15 @@ if type(df_lojagro) == str:
     st.markdown('#### Loja Agropecuária')
     st.write(str_result_lojagro)
 else:
-    #df_lojagro = pd.read_csv("../data/loja_agropecuaria_" + str(product) + ".csv")
     st.markdown('#### Loja Agropecuária')
     st.dataframe(df_lojagro)
 
+if type(df_bom_cultivo) == str:
+    st.markdown('#### Bom Cultivo')
+    st.write(str_result_bomcult)
+else:
+    st.markdown('#### Bom Cultivo')
+    st.dataframe(df_bom_cultivo)
 
 
     

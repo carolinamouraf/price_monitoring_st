@@ -6,14 +6,14 @@ import numpy as np
 
 
 def save_item(product, price_farm):
-    with open('data/saved_products.txt', 'a') as file:
+    with open('../data/saved_products.txt', 'a') as file:
         file.write(str(product) + "@" + str(price_farm) + '\n')
         # adicionar opção de checar se o produto já existe no arquivo e, caso exista, oferecer substituição
         # OBS: criar função de atualizar txt
 
 def open_item_list():
     search_dic = {}
-    with open('data/saved_products.txt', 'r') as file:
+    with open('../data/saved_products.txt', 'r') as file:
         items_list = file.readlines()
 
         for line in items_list:
@@ -320,14 +320,13 @@ def loja_agropecuaria(product):
     dic_infos = {}
 
     for item in divs:
-        product_name = item[1].split('                            ')
-        product_name = product_name[1]
+        product_name = item[1].split('                            ')[1]
         dic_infos[product_name] = ['price', 'payment']
         
-        product_price = item[2].split('                        ')[1].split(' ')[1].split('ou')[0]
+        product_price = item[2].split('                        ')[1].split('R$ ')[2].split(' ')[0]
         dic_infos[product_name][0] = product_price
         
-        payment = item[2].split('                        ')[1].split('ou')[1]
+        payment = item[3].split('ou ')[1]
         dic_infos[product_name][1] = payment
 
     # Creating the dataframe
@@ -342,92 +341,66 @@ def loja_agropecuaria(product):
         df_infos = df_infos.rename(columns = {'index':'PRODUTO', 0:'PRECO_DESCONTO', 1:'FORMA_PAGAMENTO'})
         df_infos = df_infos[['PRODUTO', 'PRECO_DESCONTO', 'DESCONTO_%', 'FORMA_PAGAMENTO', 'PRECO_ORIGINAL']]
 
-        for i in df_infos.index:
+        '''for i in df_infos.index:
             info = df_infos['PRECO_DESCONTO'][i]
             splitted = info.split('R')
             if np.isin('$', splitted) == True:
                 price = splitted[0]
                 df_infos['PRECO_DESCONTO'][i] = price
             else:
-                pass
+                pass'''
 
         #df_infos["PRECO_DESCONTO"]=df_infos["PRECO_DESCONTO"].str.replace(',','.')
         #df_infos["PRECO_DESCONTO"]=df_infos["PRECO_DESCONTO"].astype(float)
     
     return df_infos
 
-'''def loja_mecanico(product):
+def bom_cultivo(product):
 
     def create_url(key_word):
         key_word = str(key_word)
         url_search = key_word.replace(" ", "%20")
-
-        url = "https://www.lojadomecanico.com.br/busca?q=" + str(url_search)
-
+        
+        url = "https://www.bomcultivo.com/busca?q=" + str(url_search)
+        
         return url
     
-    # Accessing the section on mercado livre's website
-    url = create_url("alicate")
+    def splitting(lista, n):
+        for i in range(0, len(lista), n):
+            yield lista[i:i + n]
+    
+    url = create_url(product)
     page = requests.get(url)
 
-    # Creating the soup object
     soup = BeautifulSoup(page.text, 'html.parser')
 
+    class1 = "product-name" 
+    class2 = "price-big" 
+    class3 = "type-payment-condiction"
+
     name_disc = []
-    for link in soup.find_all(class_= 'body-card flex-grow-1'): #finding the names at the title class in the code
+    for link in soup.find_all(class_=[class1, class2, class3]): #finding the names at the title class in the code
         info = link.get_text()
         name_disc.append(info)
 
+
     info_dict = {}
-
-    for item in name_disc:
-        splitted_infos = item.split('\n')
-        prod_name = splitted_infos[7].split('                 ')
-        prod_name = prod_name[0]
-        prod_name = prod_name.split('                ')[1]
-        info_dict[prod_name] = ['current_price', 'discount', 'old_price', 'payment_cond']
+    list_of_lists = splitting(name_disc, 3)
+    for item in list_of_lists:
+        prod_name = item[0]
+        price = item[1].split('R$  ')[1].split('   ')[0]
+        payment = item[2].split('ou ')[1]
         
-        old_price = splitted_infos[13].split(' ')
-        if np.isin('DE:', old_price) == True:
-            old_price = old_price[2]
-            info_dict[prod_name][2] = old_price
-        else:
-            current_price = old_price[1]
-            info_dict[prod_name][0] = current_price
-            
-        try:
-            discount = splitted_infos[18].split(' ')
-            discount = discount[32]
-            info_dict[prod_name][1] = discount
-        except:
-            payment_cond = splitted_infos[17].split('                    ')[1]
-            info_dict[prod_name][3] = payment_cond
-        
-        current_price = splitted_infos[21].split(' ')
-        if np.isin('R$', current_price) == True:
-            current_price = current_price[1]
-            info_dict[prod_name][0] = current_price
-        else:
-            pass
-        
-        try:
-            payment_cond = splitted_infos[25].split(' ')
-            if np.isin('cartão', payment_cond) == True:
-                payment_cond = splitted_infos[25].split('                    ')[1]
-                info_dict[prod_name][3] = payment_cond
-            else:
-                pass
-            
-        except:
-            pass
+        info_dict[prod_name] = [price, payment]
 
-    
-    # Creating the dataframe
-    df = pd.DataFrame.from_dict(info_dict, orient='index')
-    df_infos = df.reset_index()
-    df_infos = df_infos.rename(columns = {'index':'PRODUTO', 0:'PRECO_DESCONTO', 1:'DESCONTO_%', 2:'PRECO_ORIGINAL', 3:'FORMA_PAGAMENTO'})
-    df_infos = df_infos[['PRODUTO', 'PRECO_DESCONTO', 'DESCONTO_%', 'FORMA_PAGAMENTO', 'PRECO_ORIGINAL']]
-    df_infos['DESCONTO_%'].replace('discount', 0, inplace=True)
-    df_infos['PRECO_ORIGINAL'].replace('old_price', 0, inplace=True)
+    if len(info_dict) == 0:
+        df_infos = "nulo"
+    else:
+        df_infos = pd.DataFrame.from_dict(info_dict, orient='index')
+        df_infos = df_infos.reset_index()
+        df_infos = df_infos.rename(columns = {'index':'PRODUTO', 0:'PRECO_DESCONTO', 1:'FORMA_PAGAMENTO'})
+        df_infos['DESCONTO_%'] = 0
+        df_infos['PRECO_ORIGINAL'] = 0
+        df_infos = df_infos[['PRODUTO', 'PRECO_DESCONTO', 'DESCONTO_%', 'FORMA_PAGAMENTO', 'PRECO_ORIGINAL']]
 
-    return df_infos'''
+    return df_infos
