@@ -9,7 +9,7 @@ import time
 
 # CREATING SIDE BAR
 
-image = Image.open('../assets/farmbits-logo-alt2.png')
+image = Image.open('assets/farmbits-logo-alt2.png')
 st.sidebar.image(image)
 st.sidebar.markdown('# Pesquisar novo produto:')
 
