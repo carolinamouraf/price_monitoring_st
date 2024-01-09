@@ -8,14 +8,14 @@ import time
 
 
 def save_item(product, price_farm):
-    with open('../data/saved_products.txt', 'a') as file:
+    with open('data/saved_products.txt', 'a') as file:
         file.write(str(product) + "@" + str(price_farm) + '\n')
         # adicionar opção de checar se o produto já existe no arquivo e, caso exista, oferecer substituição
         # OBS: criar função de atualizar txt
 
 def open_item_list():
     search_dic = {}
-    with open('../data/saved_products.txt', 'r') as file:
+    with open('data/saved_products.txt', 'r') as file:
         items_list = file.readlines()
 
         for line in items_list:
