@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from crawlers import *
 from aux_app import *
-from testes import *
 from PIL import Image
 import time
 
