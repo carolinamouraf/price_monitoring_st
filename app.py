@@ -90,11 +90,12 @@ if butt1:
 
 
     df_prices = pd.DataFrame(columns = ['PRODUTO','PRECO_DESCONTO','DESCONTO_%','FORMA_PAGAMENTO','PRECO_ORIGINAL','DESCONTO', 'LOJA'])
-    df_prices = df_prices.append(df_price_mercado).reset_index(drop = True)
-    df_prices = df_prices.append(df_price_agrosolo).reset_index(drop = True)
-    df_prices = df_prices.append(df_price_lojagro).reset_index(drop = True)
-    df_prices = df_prices.append(df_price_bomcul).reset_index(drop = True)
-    df_prices = df_prices.append(df_price_agroman).reset_index(drop = True)
+
+    df_prices = pd.concat([df_prices, df_price_mercado]).reset_index(drop = True)
+    df_prices = pd.concat([df_prices, df_price_agrosolo]).reset_index(drop = True)
+    df_prices = pd.concat([df_prices, df_price_lojagro]).reset_index(drop = True)
+    df_prices = pd.concat([df_prices, df_price_bomcul]).reset_index(drop = True)
+    df_prices = pd.concat([df_prices, df_price_agroman]).reset_index(drop = True)
 
 
     # COMPARING PRICES

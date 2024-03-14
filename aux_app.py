@@ -7,7 +7,7 @@ from PIL import Image
 def min_max_dataframe(df_infos, store):     
     df_red_max = df_infos[df_infos['PRECO_DESCONTO'] == df_infos['PRECO_DESCONTO'].max()]
     df_red_min = df_infos[df_infos['PRECO_DESCONTO'] == df_infos['PRECO_DESCONTO'].min()]
-    df_prices = df_red_max.append(df_red_min).reset_index(drop = True)
+    df_prices = pd.concat([df_red_max, df_red_min]).reset_index(drop = True)
     df_prices['LOJA'] = store
 
     return df_prices
