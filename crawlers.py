@@ -852,7 +852,7 @@ def cocamar(key_word):
     chrome_options.add_argument('-disable-infobars')
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--log-level=3')
-    chrome_driver_path = 'chromedriver'
+    chrome_driver_path = 'assets/chromedriver'
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -962,7 +962,7 @@ def orbia(key_word,email,password):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument('--log-level=3')
-    chrome_driver_path = 'chromedriver'
+    chrome_driver_path = 'assets/chromedriver'
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -1072,7 +1072,7 @@ def conecta_basf(key_word):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument('--log-level=3')
-    chrome_driver_path = 'chromedriver'
+    chrome_driver_path = 'assets/chromedriver'
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -1192,7 +1192,7 @@ def lavoro(key_word):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument('--log-level=3')
-    chrome_driver_path = 'chromedriver'
+    chrome_driver_path = 'assets/chromedriver'
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
